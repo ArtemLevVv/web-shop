@@ -137,4 +137,73 @@ admin = flask.Blueprint(
     static_url_path= '/admin/'  # URL path for admin static files / URL шлях для статичних файлів адміністратора
 )
 ```
+### example/приклад
+```python
+import flask
 
+example = flask.Bkueprint(
+    name = 'name_of_Blueprint',
+    import_name - 'name_of_file',
+    template_folder = 'path_to_your_templates_folred',
+    static_folder = 'path_to_your_templates_folred',
+    static_url_path = 'url_path_sabe_with_url_in_url'
+)
+```
+
+### project ursl
+``` python
+import home_page  # Import the home_page module / Імпортуємо модуль home_page
+from .settings import project  # Import the project object from settings / Імпортуємо об'єкт project з налаштувань
+import log_page  # Import the log_page module / Імпортуємо модуль log_page
+import reg_page  # Import the reg_page module / Імпортуємо модуль reg_page
+import shop_page  # Import the shop_page module / Імпортуємо модуль shop_page
+import basket_page  # Import the basket_page module / Імпортуємо модуль basket_page
+import admin_page  # Import the admin_page module / Імпортуємо модуль admin_page
+
+# Add a URL rule for the home page / Додаємо правило URL для домашньої сторінки
+# Mapping the root URL to the render_home function / Відповідність кореневого URL функції render_home
+home_page.home.add_url_rule(rule="/", view_func=home_page.render_home)
+
+# Add a URL rule for the shop page / Додаємо правило URL для сторінки магазину
+# Mapping /shop/ to the render_shop function / Відповідність /shop/ функції render_shop
+# Allowing both GET and POST methods / Дозволяємо методи GET та POST
+shop_page.shop.add_url_rule(rule="/shop/", view_func=shop_page.render_shop, methods=['GET', 'POST'])
+
+# Add a URL rule for the registration page / Додаємо правило URL для сторінки реєстрації
+# Mapping /reg/ to the render_reg function / Відповідність /reg/ функції render_reg
+# Allowing both GET and POST methods / Дозволяємо методи GET та POST
+reg_page.reg.add_url_rule(rule='/reg/', view_func=reg_page.render_reg, methods=['GET', 'POST'])
+
+# Add a URL rule for the login page / Додаємо правило URL для сторінки входу
+# Mapping /log/ to the show_authorization function / Відповідність /log/ функції show_authorization
+# Allowing both GET and POST methods / Дозволяємо методи GET та POST
+log_page.log.add_url_rule(rule='/log/', view_func=log_page.show_authorization, methods=['GET', 'POST'])
+
+# Add a URL rule for the basket page / Додаємо правило URL для сторінки кошика
+# Mapping /cart/ to the render_basket function / Відповідність /cart/ функції render_basket
+# Allowing both GET and POST methods / Дозволяємо методи GET та POST
+basket_page.basket.add_url_rule(rule='/cart/', view_func=basket_page.render_basket, methods=['GET', 'POST'])
+
+# Add a URL rule for the admin page / Додаємо правило URL для сторінки адміністратора
+# Mapping /admin/ to the render_admin function / Відповідність /admin/ функції render_admin
+# Allowing both GET and POST methods / Дозволяємо методи GET та POST
+admin_page.admin.add_url_rule(rule='/admin/', view_func=admin_page.render_admin, methods=["GET", "POST"])
+
+# Register the basket blueprint with the project / Реєструємо блупринт кошика з проектом
+project.register_blueprint(blueprint=basket_page.basket)
+
+# Register the home blueprint with the project / Реєструємо блупринт домашньої сторінки з проектом
+project.register_blueprint(blueprint=home_page.home)
+
+# Register the shop blueprint with the project / Реєструємо блупринт магазину з проектом
+project.register_blueprint(blueprint=shop_page.shop)
+
+# Register the registration blueprint with the project / Реєструємо блупринт реєстрації з проектом
+project.register_blueprint(blueprint=reg_page.reg)
+
+# Register the login blueprint with the project / Реєструємо блупринт входу з проектом
+project.register_blueprint(blueprint=log_page.log)
+
+# Register the admin blueprint with the project / Реєструємо блупринт адміністратора з проектом
+project.register_blueprint(blueprint=admin_page.admin)
+```
