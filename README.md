@@ -40,7 +40,7 @@ git clone https://github.com/your-repository.git
 
 
 2. Перейдіть до директорії проекту:
- ''' cd your-repository '''  
+ ``` cd your-repository ```  
 
 3. Встановіть необхідні модулі:
 <code> pip install -r requirements.txt </code>
