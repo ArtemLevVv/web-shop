@@ -85,7 +85,7 @@ reg = flask.Blueprint(
     static_url_path = "/reg"  # URL path for registration static files / URL шлях для статичних файлів реєстрації
 )
 ```
-### log_app/ login_app
+### log_app
 ``` python
 import flask
 
@@ -277,3 +277,375 @@ project.config['MAIL_PASSWORD'] = ''  # Mail password / Пароль до пош
 # Initialize Flask-Mail with the Flask project / Ініціалізуємо Flask-Mail з Flask проектом
 mail = flask_mail.Mail(project)
 ```
+
+## html код в нашому проекті / html code in our project
+
+### project base html
+``` html 
+<html lang="en">
+    <head>
+        <meta charset="UTF-8"> <!-- Character encoding / Кодування символів -->
+        <meta name="viewport" content="width=device-width, initial-scale=1.0"> <!-- Responsive design / Адаптивний дизайн -->
+        <title>{% block title %}{% endblock %}</title> <!-- Title block / Блок заголовку -->
+        {% block link %} {% endblock %} <!-- Block for additional links / Блок для додаткових посилань -->
+    <body>
+        {% if not is_authenticated %} <!-- If user is not authenticated / Якщо користувач не авторизований -->
+            <a href="/log/">AUTHORIZATION</a> <!-- Link to login / Посилання для авторизації -->
+            <a href="/reg/">REGISTRATION</a> <!-- Link to registration / Посилання для реєстрації -->
+        {% endif %}
+        
+        {% if is_admin %} <!-- If user is admin / Якщо користувач адміністратор -->
+            <a href="/admin/">ADMIN</a> <!-- Link to admin page / Посилання на адмін-сторінку -->
+        {% endif %}
+
+        {% block content %} <!-- Content block / Блок контенту -->
+        {% endblock %}
+    </body>
+</html>
+```
+### shop html 
+``` html 
+{% extends "base.html" %} <!-- Extends base template / Розширює базовий шаблон -->
+
+{% block title %} 
+    Shop Page
+{% endblock %}
+
+{% block link %}
+    <link rel="stylesheet" href="{{ url_for('static', filename = 'shop_page/css/style.css') }}"> <!-- Link to CSS / Посилання на CSS -->
+{% endblock %}
+
+{% block content %}
+    {% for value, tagname in body['content'].items() %} <!-- Loop through content items / Прохід по елементах контенту -->
+        {% if tagname["tagname"] == 'a' %}
+            <{{ tagname["tagname"] }} href="{{ tagname["href"] }}"> {{ tagname["text"] }} </{{ tagname["tagname"] }}> <!-- Anchor tag / Якірний тег -->
+        {% else %}
+            <{{ tagname["tagname"] }}> {{ tagname["text"] }} </{{ tagname["tagname"] }}> <!-- Other tags / Інші теги -->
+        {% endif %}
+    {% endfor %}
+    <p>{{ user_name }}</p> <!-- Display user name / Відображення імені користувача -->
+
+    {% if count %}
+        <div class="message">
+            <h1> {{ count }} </h1> <!-- Display count / Відображення кількості -->
+        </div>
+    {% endif %}
+
+    {% for product in products %} <!-- Loop through products / Прохід по продуктах -->
+        {% set current_product = product %} <!-- Set current product / Встановлення поточного продукту -->
+        
+        <div class="container">
+            <img src="{{ url_for('static', filename = 'shop_page/images/' + product.name + '.png') }}" alt=""> <!-- Product image / Зображення продукту -->
+            
+            <div class="vertical-line-right"></div> 
+            <div class="text">
+                {% for value, key in body['cataloge'].items() %} <!-- Loop through catalog items / Прохід по елементах каталогу -->
+                    {% if key["tagname"] == 'button' %}
+                        <{{ key["tagname"] }} class="{{ key["class"] }}" id="{{ product.id }}"> {{ key["text"] }} </{{ key["tagname"] }}> <!-- Button tag / Тег кнопки -->
+                    {% elif key["tagname"] == 'h2' %}
+                        <{{ key["tagname"] }}> {{ current_product.name }} </{{ key["tagname"] }}> <!-- Product name / Назва продукту -->
+                    {% elif key["tagname"] == 'h3' %}
+                        <{{ key["tagname"] }}> {{ key["text"] }} {{ current_product.price }} </{{ key["tagname"] }}> <!-- Product price / Ціна продукту -->
+                    {% elif key["tagname"] == 'h4' %}
+                        <{{ key["tagname"] }}> {{ key["text"] }} {{ current_product.description }} </{{ key["tagname"] }}> <!-- Product description / Опис продукту -->
+                    {% else %}
+                        <{{ key["tagname"] }}> {{ key["text"] }} </{{ key["tagname"] }}> <!-- Other tags / Інші теги -->
+                    {% endif %}
+                {% endfor %}
+                <h2>Ємність</h2> <!-- Capacity label / Мітка ємності -->
+                <div class="div_memory">
+                    <button class="memory">256</button> <!-- Memory button / Кнопка пам'яті -->
+                    <button class="memory">512</button> <!-- Memory button / Кнопка пам'яті -->
+                    <button class="memory">1028</button> <!-- Memory button / Кнопка пам'яті -->
+                </div>
+            </div>
+            <div class="vertical-line-left"></div> 
+        </div>
+    {% endfor %}
+    <script src="{{ url_for('static', filename='shop_page/js/set_cookies.js') }}" defer></script> <!-- Set cookies script / Скрипт встановлення кукі -->
+    <script src="{{ url_for('static', filename = 'js/set_cookie.js') }}"></script> <!-- Set cookie script / Скрипт встановлення кукі -->
+{% endblock %}
+```
+### reg html/ registratin html
+``` html
+{% extends "base.html" %} <!-- Extends base template / Розширює базовий шаблон -->
+
+{% block title %} 
+    Registration Page
+{% endblock %}
+
+{% block link %}
+    <link rel="stylesheet" href="{{ url_for('static', filename = 'reg_page/css/style.css') }}"> <!-- Link to CSS / Посилання на CSS -->
+{% endblock %}
+
+{% block content %}
+<form method="post"> <!-- Form with POST method / Форма з методом POST -->
+    {% for value, tagname in body['content'].items() %} <!-- Loop through content items / Прохід по елементах контенту -->
+        <span>
+        {% if tagname["tagname"] == "input" %}
+            <{{ tagname["tagname"] }} class="{{ tagname["class"] }}" type="{{ tagname["type"] }}" name="{{ tagname["name"] }}" placeholder="{{ tagname["placeholder"] }}"> <!-- Input tag / Тег вводу -->
+        {% elif tagname["tagname"] == "button" %}
+            <{{ tagname["tagname"] }} type="{{ tagname["type"] }}"> {{ tagname["text"] }} </{{ tagname['tagname'] }}> <!-- Button tag / Тег кнопки -->
+        </span>
+        {% else %}
+            <{{ tagname["tagname"] }}> {{ tagname["text"] }} </{{ tagname["tagname"] }}> <!-- Other tags / Інші теги -->
+        {% endif %}
+    {% endfor %}
+</form> 
+{% endblock %}
+```       
+### log html
+``` html
+
+{% extends "base.html" %} <!-- Extends base template / Розширює базовий шаблон -->
+
+{% block title %} 
+    Authorization Page
+{% endblock %}
+
+{% block link %}
+    <link rel="stylesheet" href="{{ url_for('static', filename = 'log_page/css/style.css') }}"> <!-- Link to CSS / Посилання на CSS -->
+{% endblock %}
+
+{% block content %}
+<form method="post"> <!-- Form with POST method / Форма з методом POST -->
+    {% for value, tagname in body['content'].items() %} <!-- Loop through content items / Прохід по елементах контенту -->
+        <span>
+        {% if tagname["tagname"] == 'a' %}
+            <{{ tagname["tagname"] }} href="{{ tagname["href"] }}"> {{ tagname["text"] }} </{{ tagname["tagname"] }}> <!-- Anchor tag / Якірний тег -->
+        {% elif tagname["tagname"] == "input" %}
+            <{{ tagname["tagname"] }} class="{{ tagname["class"] }}" type="{{ tagname["type"] }}" name="{{ tagname["name"] }}" placeholder="{{ tagname["placeholder"] }}"> <!-- Input tag / Тег вводу -->
+        {% elif tagname["tagname"] == "button" %}
+            <{{ tagname["tagname"] }} type="{{ tagname["type"] }}"> {{ tagname["text"] }} </{{ tagname['tagname'] }}> <!-- Button tag / Тег кнопки -->
+        </span>
+        {% else %}
+            <{{ tagname["tagname"] }}> {{ tagname["text"] }} </{{ tagname["tagname"] }}> <!-- Other tags / Інші теги -->
+        {% endif %}
+    {% endfor %}
+</form> 
+{% endblock %}
+```
+### Home html
+``` html
+{% extends "base.html" %} <!-- Extend base.html for consistent structure -->
+
+{% block title %}
+    Home Page <!-- Page title -->
+{% endblock %}
+
+{% block link %}
+    <link rel="stylesheet" href="{{ url_for('static', filename='home_page/css/style.css') }}"> <!-- Link to CSS file -->
+{% endblock %}
+
+{% block content %}
+    <div>
+        {% for value, tagname in body['content'].items() %}
+            {% if tagname["tagname"] == 'a' %}
+                <{{ tagname["tagname"] }} href="{{ tagname["href"] }}">{{ tagname["text"] }}</{{ tagname["tagname"] }}>
+            {% elif tagname["tagname"] != "a"  %}
+                <{{ tagname["tagname"] }}>{{ tagname["text"] }}</{{ tagname["tagname"] }}>
+            {% endif %}       
+        {% endfor %}
+        <p>{{ user_name }}</p> <!-- Display user's name -->
+    </div>
+{% endblock %}
+```
+### Basket html 
+``` html
+{% extends "base.html" %} <!-- Extend base.html for consistent structure -->
+
+{% block title %}
+    Basket Page <!-- Page title -->
+{% endblock %}
+
+{% block link %}
+    <link rel="stylesheet" href="{{ url_for('static', filename='basket_page/css/style.css') }}"> <!-- Link to CSS file -->
+{% endblock %}
+
+{% block content %}
+    {% for value, tagname in body['content'].items() %}
+        {% if tagname["tagname"] == 'a' %}
+            <{{ tagname["tagname"] }} href="{{ tagname["href"] }}">{{ tagname["text"] }}</{{ tagname["tagname"] }}>
+        {% else %}
+            <{{ tagname["tagname"] }}>{{ tagname["text"] }}</{{ tagname["tagname"] }}>
+        {% endif %}       
+    {% endfor %}
+    <p>{{ user_name }}</p> <!-- Display user's name -->
+
+    {% if products %}
+        <div class="message">
+            <h1>{{ count }}</h1> <!-- Display count of products -->
+        </div>
+
+        {% for product in products %}
+            <div id="{{ product.id }}" class="container">
+                <img src="{{ url_for('static', filename='shop_page/images/' + product.name + '.png') }}" alt="photo"> <!-- Product image -->
+                <div class="vertical-line-right"></div>
+                <div class="text">
+                    <h2>{{ product.name }}</h2> <!-- Product name -->
+                    <h3>{{ product.price }}</h3> <!-- Product price -->
+                    <h4>{{ product.description }}</h4> <!-- Product description -->
+                    <button class="minus" id="{{ product.id }}">-</button> <!-- Button to decrease quantity -->
+                    <h5>{{ product.count }}</h5> <!-- Product count -->
+                    <button class="add" id="{{ product.id }}">+</button> <!-- Button to increase quantity -->
+                </div>
+            </div>
+        {% endfor %} 
+
+        <div class="price">
+            {% for price, value in body['together'].items() %} 
+                {% if value["tagname"] == "button" %}
+                    <form method="post">
+                        <{{ value["tagname"] }} type="submit" name="sent" value="{{ product_id }}" class="{{ value["class"] }}">{{ value["text"] }}</{{ value["tagname"] }}>
+                    </form>
+                {% else %}
+                    <{{ value["tagname"] }}>{{ value["text"] }}</{{ value["tagname"] }}>
+                {% endif %}
+            {% endfor %}
+        </div>         
+
+        <div id="modal1" class="modal-window-div" style="display: none;">
+            <form class="modal-window-form" method="post" enctype="multipart/form-data">
+                <h6 class="modal-h6">Order Confirmation</h6>
+                <!-- Input fields for order details -->
+                <input type="text" name="username" placeholder="Enter name" class="input-data-users">
+                <input type="text" name="forname" placeholder="Enter surname" class="input-data-users">
+                <input type="number" name="phone-number" placeholder="Enter phone number" class="input-data-users">
+                <input type="text" name="email" placeholder="Enter email" class="input-data-users">                
+                <input type="text" name="city" placeholder="Enter city" class="input-data-users">
+                <input type="text" name="post" placeholder="Enter post office" class="input-data-users">
+                <input type="text" name="more_info" placeholder="Additional info" class="input-data-users">
+                <button type="submit" class="modal-window-button" name="new-product" value="new">Confirm</button>
+            </form>
+        </div>
+    {% else %}
+        <h2>Cart is empty</h2>
+    {% endif %}
+    
+    <script src="{{ url_for('static', filename='basket_page/js/modal_window.js') }}"></script>
+    <script src="{{ url_for('static', filename='basket_page/js/cookie_minus.js') }}"></script>    
+    <script src="{{ url_for('static', filename='basket_page/js/cookie_add.js') }}"></script> 
+{% endblock %}
+
+```
+### Admin html
+``` html
+{% extends "base.html" %} <!-- Extend base.html for consistent structure -->
+
+{% block title %}
+    Admin Page <!-- Page title -->
+{% endblock %}
+
+{% block link %}
+    <link rel="stylesheet" href="{{ url_for('static', filename='admin_page/css/style.css') }}"> <!-- Link to CSS file -->
+{% endblock %}
+
+{% block content %}
+    {% for value, tagname in body['content'].items() %}
+        {% if tagname['tagname'] == 'a' %}
+            <{{ tagname['tagname'] }} href="{{ tagname['href'] }}">{{ tagname['text'] }}</{{ tagname['tagname'] }}>
+        {% else %}
+            <{{ tagname['tagname'] }}>{{ tagname['text'] }}</{{ tagname['tagname'] }}>
+        {% endif %}
+    {% endfor %}
+
+    <p>{{ user_name }}</p> <!-- Display user's name -->
+
+    <br>
+
+    <form method="post">
+        <div class="modal-window-add-div">
+            <h6>Add New Product</h6>
+            <button class="modal-window-add-button">+</button> <!-- Button to add new product -->
+        </div>
+    </form>
+
+    <div id="modal1" class="modal-window-add" style="display: none;">
+        <form class="modal-window-add-form" method="post" enctype="multipart/form-data">
+            <h6 class="modal-h6">Add New Product</h6>
+            <h6>Product Photo</h6>
+            <input type="file" name="image-add" accept="image/*" class="image-add"> <!-- Input field for product image -->
+            <input type="text" name="name-add" placeholder="Enter name" class="input-data-add"> <!-- Input field for product name -->
+            <input type="number" name="price-add" placeholder="Enter price" class="input-data-add"> <!-- Input field for product price -->
+            <input type="number" name="discount-add" placeholder="Enter discount" class="input-data-add"> <!-- Input field for product discount -->
+            <input type="number" name="count-add" placeholder="Enter quantity" class="input-data-add"> <!-- Input field for product quantity -->
+            <textarea name="description-add" placeholder="Enter description" class="input-label"></textarea> <!-- Textarea for product description -->
+            <button type="submit" name="new-product" value="new">Confirm</button> <!-- Button to confirm adding new product -->
+        </form>
+    </div>
+
+    <br>
+
+    {% for product in products %}
+        <form method="post">
+            <div class="container">
+                <img src="{{ url_for('static', filename='shop_page/images/' + product.name + '.png') }}" alt=""> <!-- Product image -->
+                <div class="edit">
+                    <button class="edit-img" id="{{ product.id }}">/</button> <!-- Button to edit product image -->
+                </div>                
+                <div class="vertical-line-right"></div>
+                <div class="text">
+                    {% for value, key in body['cataloge'].items() %}
+                        {% if key["tagname"] == 'button' %}
+                            <{{ key["tagname"] }} class="{{ key["class"] }}" id="{{ product.id }}">{{ key["text"] }}</{{ key["tagname"] }}>
+                        {% elif key["tagname"] == 'h2' %}
+                            <{{ key["tagname"] }}>{{ product.name }}</{{ key["tagname"] }}>
+                            <div class="edit">
+                                <button class="edit-text" name="name" id="{{ product.id }}">/</button> <!-- Button to edit product name -->
+                            </div>
+                        {% elif key["tagname"] == 'h3' and key['text'] == 'Price' %}
+                            <{{ key["tagname"] }}>{{ key["text"] }} {{ product.price }}</{{ key["tagname"] }}> <!-- Display product price -->
+                            <div class="edit">
+                                <button class="edit-text" name="price" class="price" id="{{ product.id }}">/</button> <!-- Button to edit product price -->
+                            </div>
+                        {% elif key["tagname"] == 'h3' and key["text"] == 'Discount' %}
+                            <{{ key["tagname"] }}>{{ key["text"] }} {{ product.discount }}</{{ key["tagname"] }}> <!-- Display product discount -->
+                            <div class="edit">
+                                <button class="edit-text" name="discount" id="{{ product.id }}">/</button> <!-- Button to edit product discount -->
+                            </div>
+                        {% elif key["tagname"] == 'h4' %}
+                            <{{ key["tagname"] }}>{{ key["text"] }} {{ product.description }}</{{ key["tagname"] }}> <!-- Display product description -->
+                            <div class="edit">
+                                <button class="edit-text" name="description" id="{{ product.id }}">/</button> <!-- Button to edit product description -->
+                            </div>
+                        {% else %}
+                            <{{ key["tagname"] }}>{{ key["text"] }}</{{ key["tagname"] }}> <!-- Display other information -->
+                            <div class="edit">
+                                <button class="edit-text" name="count" id="{{ product.id }}">/</button> <!-- Button to edit product quantity -->
+                            </div>
+                        {% endif %}
+                    {% endfor %}
+                    <h2>Capacity</h2>
+                    <div class="div_memory">
+                        <button class="memory">256</button>
+                        <div class="edit">
+                            <button class="edit-memory-1">/</button>
+                        </div>
+                        <button class="memory">512</button>
+                        <div class="edit">
+                            <button class="edit-memory-2">/</button>
+                        </div>
+                        <button class="memory">1028</button>
+                        <div class="edit">
+                            <button class="edit-memory-3">/</button>
+                        </div>
+                    </div>
+                    <button name="del" id="{{ product.id }}" value="{{ product.id }}">Delete Product</button> <!-- Button to delete product -->
+                </div>
+                <div class="vertical-line-left"></div>
+            </div>
+        </form>
+    {% endfor %}
+
+    <div class="modal-window" style="display: none;">
+        <form class="modal-form" method="post" enctype="multipart/form-data">
+            <label for="" class="modal-label"></label>
+            <input type="" accept="" name="" placeholder="" class="input-data">
+            <button class="change-submit" type="submit" value="" name="set-changes">Save Changes</button> <!-- Button to save changes -->
+        </form>
+    </div>
+    <script src="{{ url_for('static', filename='admin_page/js/editCookie.js') }}"></script> <!-- Script for editing cookies -->
+{% endblock %}
+
+```
+
