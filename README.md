@@ -207,3 +207,73 @@ project.register_blueprint(blueprint=log_page.log)
 # Register the admin blueprint with the project / Реєструємо блупринт адміністратора з проектом
 project.register_blueprint(blueprint=admin_page.admin)
 ```
+
+## Усі файли інші файли які в project
+
+### project settings
+
+``` python
+import flask  # Import Flask framework / Імпортуємо Flask фреймворк
+import flask_sqlalchemy  # Import SQLAlchemy for database management / Імпортуємо SQLAlchemy для керування базою даних
+import flask_migrate  # Import Flask-Migrate for database migrations / Імпортуємо Flask-Migrate для міграцій бази даних
+import os  # Import os module for operating system interactions / Імпортуємо модуль os для взаємодії з операційною системою
+
+# Initialize Flask project / Ініціалізуємо Flask проект
+project = flask.Flask(
+    import_name="settings",  # Import name / Ім'я імпорту
+    template_folder="project/templates",  # Folder for templates / Папка для шаблонів
+    instance_path=os.path.abspath(__file__ + "/.."),  # Instance path / Шлях до інстансу
+)
+
+# Configure the database URI / Налаштовуємо URI бази даних
+project.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///data.db"
+
+# Initialize SQLAlchemy with the Flask project / Ініціалізуємо SQLAlchemy з Flask проектом
+DATABASE = flask_sqlalchemy.SQLAlchemy(app=project)
+
+# Initialize Flask-Migrate with the Flask project and database / Ініціалізуємо Flask-Migrate з Flask проектом і базою даних
+migrate = flask_migrate.Migrate(app=project, db=DATABASE)
+
+
+
+```
+
+### project login_manager
+``` python
+import flask_login  # Import Flask-Login for user session management / Імпортуємо Flask-Login для керування сесіями користувачів
+
+from .settings import project  # Import the Flask project from settings / Імпортуємо Flask проект з налаштувань
+from reg_page.models import Users  # Import the Users model from reg_page.models / Імпортуємо модель Users з reg_page.models
+
+# Set secret key for the project / Встановлюємо секретний ключ для проекту
+project.secret_key = '200'
+
+# Initialize LoginManager with the Flask project / Ініціалізуємо LoginManager з Flask проектом
+login_manager = flask_login.LoginManager(project)
+
+# Define user loader function for LoginManager / Визначаємо функцію завантажувача користувачів для LoginManager
+@login_manager.user_loader
+def load_user(id):
+    return Users.query.get(id)  # Get user by ID / Отримати користувача за ID
+
+```
+
+### project mail_config 
+``` python
+import flask_mail  # Import Flask-Mail for email support / Імпортуємо Flask-Mail для підтримки електронної пошти
+from project.settings import project  # Import the Flask project from settings / Імпортуємо Flask проект з налаштувань
+
+# Define the Gmail address / Визначаємо адресу Gmail
+gmail_address = "arzon.art125@gmail.com"
+
+# Configure Flask-Mail settings / Налаштовуємо параметри Flask-Mail
+project.config['MAIL_SERVER'] = 'smtp.gmail.com'  # Mail server / Поштовий сервер
+project.config['MAIL_PORT'] = 587  # Mail port / Поштовий порт
+project.config['MAIL_USE_TLS'] = True  # Use TLS / Використовувати TLS
+project.config['MAIL_USE_SSL'] = False  # Use SSL / Використовувати SSL
+project.config['MAIL_USERNAME'] = gmail_address  # Mail username / Ім'я користувача пошти
+project.config['MAIL_PASSWORD'] = ''  # Mail password / Пароль до пошти
+
+# Initialize Flask-Mail with the Flask project / Ініціалізуємо Flask-Mail з Flask проектом
+mail = flask_mail.Mail(project)
+```
