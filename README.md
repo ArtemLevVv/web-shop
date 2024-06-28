@@ -40,10 +40,10 @@ git clone https://github.com/your-repository.git
 
 
 2. Перейдіть до директорії проекту:
-<code> cd your-repository </code>
+dash { cd your-repository }
 
 3. Встановіть необхідні модулі:
-<code> pip install -r requirements.txt </code>
+''' dash { pip install -r requirements.txt }'''
 
 4Запустіть додаток:
 <code> flask run </code>
