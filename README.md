@@ -56,5 +56,16 @@ git clone https://github.com/your-repository.git
     <code> pip install -r requirements.txt </code>
 5.  Налаштуйте конфігураційні файли та запустіть веб-додаток.
 
+``` python
+import flask 
 
+shop  = flask.Blueprint(
+    name = "shop",
+    import_name = "app",
+    template_folder = "shop_page/templates",
+    static_folder = "static/shop_page",
+    static_url_path = "/shop/"
+)
+
+```
 
